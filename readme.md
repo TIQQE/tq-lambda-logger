@@ -1,3 +1,5 @@
+![CI](https://github.com/TIQQE/tq-lambda-logger/workflows/CI/badge.svg)
+
 # A nodejs logger for AWS Lambda
 * Writes logs to stdout/stderr using console.debug|info|warn|error
 * Logs in JSON format
