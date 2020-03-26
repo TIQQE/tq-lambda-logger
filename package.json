@@ -1,0 +1,63 @@
+{
+  "name": "tq-lambda-logger",
+  "version": "0.0.1",
+  "description": "Logger for AWS Lambda nodejs.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "lint": "./node_modules/.bin/tslint 'src/**/*.ts' 'test/**/*.ts'",
+    "lintfix": "./node_modules/.bin/tslint --fix 'src/**/*.ts' 'test/**/*.ts'",
+    "test": "./node_modules/.bin/nyc ./node_modules/.bin/mocha -r ts-node/register test/*.ts",
+    "pretest": "npm run build",
+    "build": "rm -rf dist/ && tsc --declaration",
+    "updateD": "node ./update-dependencies.js dependencies",
+    "updateDD": "node ./update-dependencies.js devDependencies"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://github.com/TIQQE/tq-lambda-logger"
+  },
+  "author": "TIQQE",
+  "license": "ISC",
+  "homepage": "https://github.com/TIQQE/tq-lambda-logger#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/ansi-regex": "^5.0.0",
+    "@types/ansi-styles": "^3.2.1",
+    "@types/aws-lambda": "^8.10.46",
+    "@types/chai": "^4.2.11",
+    "@types/common-tags": "^1.8.0",
+    "@types/json-stringify-safe": "^5.0.0",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^12.12.31",
+    "ansi-styles": "^4.2.1",
+    "chai": "^4.2.0",
+    "common-tags": "^1.8.0",
+    "mocha": "^7.1.1",
+    "nyc": "^15.0.0",
+    "ts-node": "^8.8.1",
+    "tslint": "^6.1.0",
+    "tslint-config-security": "^1.16.0",
+    "typescript": "^3.8.3"
+  },
+  "nyc": {
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "include": [
+      "src/**/*"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "src/types/**/*"
+    ],
+    "reporter": [
+      "text"
+    ],
+    "all": true,
+    "check-coverage": false
+  }
+}

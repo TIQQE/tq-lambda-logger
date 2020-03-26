@@ -1,0 +1,8 @@
+src/
+test/
+.vscode/
+.nyc_output/
+tsconfig.json
+tslint.json
+index.ts
+bitbucket-pipelines.yml
