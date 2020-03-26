@@ -1,5 +1,5 @@
 {
-  "name": "tq-lambda-logger",
+  "name": "@tq/lambda-logger",
   "version": "0.0.1",
   "description": "Logger for AWS Lambda nodejs.",
   "main": "dist/index.js",
