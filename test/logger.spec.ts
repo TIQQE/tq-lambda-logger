@@ -137,7 +137,7 @@ describe('logger', () => {
 
     hijacker.hijack((data: any) => {
       let json = JSON.parse(data);
-      delete allLevels[json.level.toLowerCase()];
+      delete allLevels[json.logLevel.toLowerCase()];
       assert.equal(json.message, logMessage, 'Wrong message!');
 
       // When all methods have run, restore stdout and complete the test
