@@ -9,9 +9,8 @@
 ```typescript
 import { APIGatewayEvent } from 'aws-lambda';
 import { log } from 'tq-lambda-logger';
-import { ok } from '../aws/response';
 
-export const healthCheck = async (event: APIGatewayEvent, context: AWSLambda.Context, cb: AWSLambda.Callback) => {
+export const healthCheck = async (event: APIGatewayEvent) => {
 
 // A standard INFO log message
 log.info('My message');
@@ -21,7 +20,7 @@ log.info('My message');
 ```typescript
   // Output
   {
-    "timestamp": 1541421856289,
+    "timestamp": "2020-03-26T14:36:07.345Z",
     "logLevel": "INFO",
     "message": "My message"
   }
@@ -39,7 +38,7 @@ log.debug('Debugging stuff');
 ```
 ```JSON
 {
-  "timestamp": 1541421856291,
+  "timestamp": "2020-03-26T14:36:07.345Z",
   "logLevel": "DEBUG",
   "message": "Message",
 }
@@ -54,7 +53,7 @@ log.info({ message: 'Message', myProp: 'hello', myNestedProp: {subProp: 'somethi
 ```
 ```JSON
 {
-  "timestamp": 1541429192677,
+  "timestamp": "2020-03-26T14:36:07.345Z",
   "logLevel": "INFO",
   "message": "Message",
   "myProp": "hello",
