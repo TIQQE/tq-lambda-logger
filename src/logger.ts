@@ -79,12 +79,12 @@ class Logger {
    * @param logLevel The log level of the log that will be written.
    * @param logFunction The function that will be used to write the log. 'console.debug' | 'console.info' | 'console.warn' | 'console.error'. It defaults to 'console.log'.
    */
-  private writeLog(logInput: LogInput | string, logLevel: LogLevels, logFunction: any) {
+  private writeLog(logInput: LogInput | string, logLevel: LogLevels, logFunction: (...args: any[]) => void) {
     if (typeof logInput === 'string') {
       logInput = this.stringToLogInput(logInput);
     }
     if (logLevel >= this.logLevel) {
-      let log = this.createLogJson(logInput, logLevel);
+      const log = this.createLogJson(logInput, logLevel);
       logFunction(this.compactPrint ? JSON.stringify(log) : JSON.stringify(log, null, 2));
     }
   }
@@ -98,7 +98,8 @@ class Logger {
         return LogLevels.INFO;
       }
 
-      let logLevel: string = process.env.LOG_LEVEL;
+      const logLevel: string = process.env.LOG_LEVEL;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const possibleLogLevel: LogLevels | undefined = (LogLevels as any)[logLevel];
 
       // Explicit undefined check to avoid any false negatives
@@ -117,20 +118,22 @@ class Logger {
   }
 
   private createLogJson(logInput: LogInput, level: LogLevels): LogOutput {
-    // @ts-ignore
-    let logOutput: LogOutput = {};
-    logOutput.timestamp = new Date().toISOString();
-    logOutput.logLevel = LogLevels[level];
-    logOutput.message = logInput.message;
+    const logOutput: LogOutput = {
+      timestamp: new Date().toISOString(),
+      logLevel: LogLevels[level],
+      message: logInput.message,
+      correlationId: undefined,
+    };
 
     if (this.correlationId) {
       logOutput.correlationId = this.correlationId;
     }
 
-    for (let prop of Object.keys(logInput)) {
+    for (const prop of Object.keys(logInput)) {
       if (prop === 'message' || prop === 'xRequestId' || prop === 'context') {
         continue;
       }
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       logOutput[prop] = logInput[prop];
     }
 
@@ -146,9 +149,9 @@ class Logger {
     if (typeof logInput === 'string') {
       logInput = this.stringToLogInput(logInput);
     }
-    for (let prop of Object.keys(logInput)) {
+    for (const prop of Object.keys(logInput)) {
       if (logInput[prop] instanceof Error) {
-        let ex = logInput[prop];
+        const ex = logInput[prop];
         logInput[prop] = {
           ...ex,
           name: ex.name,

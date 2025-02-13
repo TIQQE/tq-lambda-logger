@@ -5,7 +5,7 @@ import { LogOutput } from '../src/types/LogOutput';
 import { StdoutHijacker } from './stdoutHijacker';
 
 describe('logger', () => {
-  let logMessage = 'my message';
+  const logMessage = 'my message';
   const hijacker = new StdoutHijacker();
 
   beforeEach(() => {
@@ -16,8 +16,8 @@ describe('logger', () => {
   });
 
   it('should have correct properties', (done) => {
-    hijacker.hijack((data: any) => {
-      let json = JSON.parse(data);
+    hijacker.hijack((data: string) => {
+      const json = JSON.parse(data) as LogOutput;
       assert.equal(json.correlationId, 'my-corr-id', 'Correlation Id is not correct!');
       assert.equal(json.logLevel, LogLevels[LogLevels.INFO], 'Not correct log level!');
       done();
@@ -26,8 +26,8 @@ describe('logger', () => {
   });
 
   it('should be able to log extra properties', (done) => {
-    hijacker.hijack((data: any) => {
-      let json = JSON.parse(data);
+    hijacker.hijack((data: string) => {
+      const json = JSON.parse(data) as LogOutput;
       assert.equal(json.myProp, 42, 'Extra properties not correctly processed');
       done();
     });
@@ -89,11 +89,13 @@ describe('logger', () => {
 
   it('should ONLY log error logs when log level is set to error', (done) => {
     let json: LogOutput;
-    let levels: any = LogLevels;
+    const levels: any = LogLevels;
     log.logLevel = LogLevels.ERROR;
 
-    hijacker.hijack((data: any) => {
-      json = JSON.parse(data);
+    hijacker.hijack((data: string) => {
+      json = JSON.parse(data) as LogOutput;
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       assert.equal(levels[json.logLevel], levels.ERROR, 'Wrong level!');
       done();
     });
@@ -106,9 +108,10 @@ describe('logger', () => {
 
   it('should convert error object into stack string', (done) => {
     let json: LogOutput;
-    let error = new Error('My error');
-    hijacker.hijack((data: any) => {
-      json = JSON.parse(data);
+    const error = new Error('My error');
+    hijacker.hijack((data: string) => {
+      json = JSON.parse(data) as LogOutput;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       assert.deepEqual(`${error.stack}`.split('\n'), json.error.stack, 'Error was not converted correctly!');
       done();
     });
@@ -118,10 +121,10 @@ describe('logger', () => {
 
   it('should NOT crash when someone uses log.error without a stack', (done) => {
     let json: LogOutput;
-    let error = new Error();
+    const error = new Error();
     delete error.stack;
-    hijacker.hijack((data: any) => {
-      json = JSON.parse(data);
+    hijacker.hijack((data: string) => {
+      json = JSON.parse(data) as LogOutput;
       if (json) {
         done();
       }
@@ -148,18 +151,22 @@ describe('logger', () => {
   });
 
   it('all log methods should accept both LogInput and string', (done) => {
-    let debug: LogLevels = LogLevels.DEBUG,
-      info: LogLevels = LogLevels.INFO,
-      warn: LogLevels = LogLevels.WARN,
-      error: LogLevels = LogLevels.ERROR;
-    let allLevels: any = { debug, info, warn, error };
+    const debug: LogLevels = LogLevels.DEBUG;
+    const info: LogLevels = LogLevels.INFO;
+    const warn: LogLevels = LogLevels.WARN;
+    const error: LogLevels = LogLevels.ERROR;
+    const allLevels: any = { debug, info, warn, error };
 
-    hijacker.hijack((data: any) => {
-      let json = JSON.parse(data);
+    hijacker.hijack((data: string) => {
+      const json = JSON.parse(data) as LogOutput;
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       delete allLevels[json.logLevel.toLowerCase()];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       assert.equal(json.message, logMessage, 'Wrong message!');
 
       // When all methods have run, restore stdout and complete the test
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       if (Object.keys(allLevels).length === 0) {
         hijacker.restore();
         done();
@@ -177,7 +184,7 @@ describe('logger', () => {
   });
 
   it('should pretty print JSON by default (compactPrint=false)', (done) => {
-    hijacker.hijack((data: any) => {
+    hijacker.hijack((data: string) => {
       assert.include(data, '\n', 'Log should be pretty printed by default');
       done();
     });
@@ -190,12 +197,14 @@ describe('logger', () => {
       logLevel: LogLevels.DEBUG,
     });
 
-    hijacker.hijack((data: any) => {
+    hijacker.hijack((data: string) => {
       // Remove any trailing newline that might come from console.log
       const output = data.replace(/\n$/, '');
 
       // Verify it's valid JSON and has no newlines within the content
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
       assert.isTrue(output.indexOf('\n') === -1, 'Log should be compact printed (no newlines)');
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-argument
       assert.doesNotThrow(() => JSON.parse(output), 'Should be valid JSON');
       done();
     });
