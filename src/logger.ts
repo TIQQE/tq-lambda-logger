@@ -23,11 +23,17 @@ class Logger {
   public correlationId: string | undefined;
 
   /**
+   * If true (default is false), the JSON log will be printed in a compact format.
+   */
+  public compactPrint: boolean = false;
+
+  /**
    * Setup the meta data that will be added to all logs.
    */
   public init(options: LogOptions) {
     this.logLevel = options.logLevel || this.logLevel;
     this.correlationId = options.correlationId || this.correlationId;
+    this.compactPrint = options.compactPrint ?? this.compactPrint;
   }
 
   /**
@@ -66,10 +72,12 @@ class Logger {
    * @param logFunction The function that will be used to write the log. 'console.debug' | 'console.info' | 'console.warn' | 'console.error'. It defaults to 'console.log'.
    */
   private writeLog(logInput: LogInput | string, logLevel: LogLevels, logFunction: any) {
-    if (typeof logInput === 'string') { logInput = this.stringToLogInput(logInput); }
+    if (typeof logInput === 'string') {
+      logInput = this.stringToLogInput(logInput);
+    }
     if (logLevel >= this.logLevel) {
       let log = this.createLogJson(logInput, logLevel);
-      logFunction(JSON.stringify(log, null, 2));
+      logFunction(this.compactPrint ? JSON.stringify(log) : JSON.stringify(log, null, 2));
     }
   }
 
@@ -78,7 +86,9 @@ class Logger {
    */
   private setInitialLogLevel(): LogLevels {
     try {
-      if (!process.env.LOG_LEVEL) { return LogLevels.INFO; }
+      if (!process.env.LOG_LEVEL) {
+        return LogLevels.INFO;
+      }
 
       let logLevel: string = process.env.LOG_LEVEL;
       const possibleLogLevel: LogLevels | undefined = (LogLevels as any)[logLevel];
@@ -89,7 +99,6 @@ class Logger {
       } else {
         return LogLevels.INFO;
       }
-
     } catch (ex) {
       return LogLevels.INFO;
     }
@@ -106,10 +115,14 @@ class Logger {
     logOutput.logLevel = LogLevels[level];
     logOutput.message = logInput.message;
 
-    if (this.correlationId) { logOutput.correlationId = this.correlationId; }
+    if (this.correlationId) {
+      logOutput.correlationId = this.correlationId;
+    }
 
     for (let prop of Object.keys(logInput)) {
-      if (prop === 'message' || prop === 'xRequestId' || prop === 'context') { continue; }
+      if (prop === 'message' || prop === 'xRequestId' || prop === 'context') {
+        continue;
+      }
       logOutput[prop] = logInput[prop];
     }
 
@@ -122,7 +135,9 @@ class Logger {
    * the stack to a stack property.
    */
   private preProcessErrorProperties(logInput: LogInputError | string) {
-    if (typeof logInput === 'string') { logInput = this.stringToLogInput(logInput); }
+    if (typeof logInput === 'string') {
+      logInput = this.stringToLogInput(logInput);
+    }
     for (let prop of Object.keys(logInput)) {
       if (logInput[prop] instanceof Error) {
         let ex = logInput[prop];
@@ -130,7 +145,7 @@ class Logger {
           ...ex,
           name: ex.name,
           message: ex.message,
-          stack: ex.stack ? ex.stack.split('\n') : ''
+          stack: ex.stack ? ex.stack.split('\n') : '',
         };
       }
     }

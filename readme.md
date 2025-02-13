@@ -3,7 +3,7 @@
 # A nodejs logger for AWS Lambda
 
 - Writes logs to stdout/stderr using console.debug|info|warn|error
-- Logs in JSON format
+- Logs in JSON format (supports both pretty-printed and compact formats)
 - Supports log levels: DEBUG, INFO, WARN, ERROR and OFF
 - Defaults to log level INFO
 - Built using typescript and includes types
@@ -12,7 +12,7 @@
 
 ```typescript
 import { APIGatewayEvent } from 'aws-lambda';
-import { log } from '@tiqqe/lambda-logger';
+import { log, LogLevels } from '@tiqqe/lambda-logger';
 
 export const healthCheck = async (event: APIGatewayEvent) => {
   // A standard INFO log message
@@ -36,7 +36,7 @@ To show debug messages you need to explicitly set the log.level to DEBUG like th
 
 ```typescript
 // Set loglevel
-log.level = LogLevels.DEBUG;
+log.logLevel = LogLevels.DEBUG;
 // Write debug log
 log.debug('Debugging stuff');
 ```
@@ -45,7 +45,7 @@ log.debug('Debugging stuff');
 {
   "timestamp": "2020-03-26T14:36:07.345Z",
   "logLevel": "DEBUG",
-  "message": "Message",
+  "message": "Debugging stuff"
 }
 ```
 
@@ -84,6 +84,29 @@ You can easily set the initial log level by setting the environment variable `LO
 
 ```yml
 LOG_LEVEL: 'DEBUG'
+```
+
+## Compact JSON output
+
+By default, logs are pretty-printed for better readability. You can enable compact single-line output by setting the `compactPrint` option:
+
+```typescript
+// Enable compact printing
+log.init({ compactPrint: true });
+
+log.info('My message');
+// Output: {"timestamp":"2024-02-13T14:36:07.345Z","logLevel":"INFO","message":"My message"}
+
+// Default pretty printing
+log.init({ compactPrint: false });
+
+log.info('My message');
+// Output:
+// {
+//   "timestamp": "2024-02-13T14:36:07.345Z",
+//   "logLevel": "INFO",
+//   "message": "My message"
+// }
 ```
 
 ## Release process

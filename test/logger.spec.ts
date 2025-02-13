@@ -5,14 +5,13 @@ import { LogOutput } from '../src/types/LogOutput';
 import { StdoutHijacker } from './stdoutHijacker';
 
 describe('logger', () => {
-
   let logMessage = 'my message';
   const hijacker = new StdoutHijacker();
 
   beforeEach(() => {
     log.init({
       correlationId: 'my-corr-id',
-      logLevel: LogLevels.DEBUG
+      logLevel: LogLevels.DEBUG,
     });
   });
 
@@ -38,7 +37,9 @@ describe('logger', () => {
 
   it('should log debug logs when log level is set to DEBUG', (done) => {
     log.logLevel = LogLevels.DEBUG;
-    hijacker.hijack(() => { done(); });
+    hijacker.hijack(() => {
+      done();
+    });
     log.debug({ message: logMessage });
   });
 
@@ -52,14 +53,24 @@ describe('logger', () => {
 
   it('should NOT log debug logs when log level is set to info', (done) => {
     log.logLevel = LogLevels.INFO;
-    hijacker.hijack(() => { done('Should never get here!'); });
+    hijacker.hijack(() => {
+      done('Should never get here!');
+    });
     log.debug({ message: logMessage });
-    setTimeout(() => { hijacker.restore(); done(); }, 0);
+    setTimeout(() => {
+      hijacker.restore();
+      done();
+    }, 0);
   });
 
   it('should NOT log info logs when log level is set to warn', (done) => {
-    hijacker.hijack(() => { done('Should never get here!'); });
-    setTimeout(() => { hijacker.restore(); done(); }, 0);
+    hijacker.hijack(() => {
+      done('Should never get here!');
+    });
+    setTimeout(() => {
+      hijacker.restore();
+      done();
+    }, 0);
 
     log.logLevel = LogLevels.WARN;
     log.info({ message: logMessage });
@@ -70,7 +81,10 @@ describe('logger', () => {
 
     log.logLevel = LogLevels.ERROR;
     log.warn({ message: logMessage });
-    setTimeout(() => { hijacker.restore(); done(); }, 0);
+    setTimeout(() => {
+      hijacker.restore();
+      done();
+    }, 0);
   });
 
   it('should ONLY log error logs when log level is set to error', (done) => {
@@ -87,7 +101,7 @@ describe('logger', () => {
     log.debug({ message: logMessage });
     log.info({ message: logMessage });
     log.warn({ message: logMessage });
-    log.error({ message: logMessage, stack: (new Error('my error')).stack });
+    log.error({ message: logMessage, stack: new Error('my error').stack });
   });
 
   it('should convert error object into stack string', (done) => {
@@ -118,14 +132,19 @@ describe('logger', () => {
   });
 
   it('should NOT log anything when log level is set to none', (done) => {
-    hijacker.hijack(() => { done('Log level NONE is not working correctly!'); });
+    hijacker.hijack(() => {
+      done('Log level NONE is not working correctly!');
+    });
 
     log.logLevel = LogLevels.OFF;
     log.debug({ message: logMessage });
     log.info({ message: logMessage });
     log.warn({ message: logMessage });
     log.error({ message: logMessage });
-    setTimeout(() => { hijacker.restore(); done(); }, 0);
+    setTimeout(() => {
+      hijacker.restore();
+      done();
+    }, 0);
   });
 
   it('all log methods should accept both LogInput and string', (done) => {
@@ -155,5 +174,48 @@ describe('logger', () => {
     log.info(logMessage);
     log.warn(logMessage);
     log.error(logMessage);
+  });
+
+  it('should pretty print JSON by default (compactPrint=false)', (done) => {
+    hijacker.hijack((data: any) => {
+      assert.include(data, '\n', 'Log should be pretty printed by default');
+      done();
+    });
+    log.info({ message: logMessage });
+  });
+
+  it('should print one line JSON when compactPrint is true', (done) => {
+    log.init({
+      compactPrint: true,
+      logLevel: LogLevels.DEBUG,
+    });
+
+    hijacker.hijack((data: any) => {
+      // Remove any trailing newline that might come from console.log
+      const output = data.replace(/\n$/, '');
+
+      // Verify it's valid JSON and has no newlines within the content
+      assert.isTrue(output.indexOf('\n') === -1, 'Log should be compact printed (no newlines)');
+      assert.doesNotThrow(() => JSON.parse(output), 'Should be valid JSON');
+      done();
+    });
+    log.info({ message: logMessage });
+  });
+
+  it('should respect compactPrint setting when changed via init', (done) => {
+    let checkCount = 0;
+    hijacker.hijack((data: any) => {
+      checkCount++;
+      if (checkCount === 1) {
+        assert.include(data, '\n', 'First log should be pretty printed');
+        log.init({ compactPrint: true });
+        log.info({ message: logMessage });
+      } else {
+        assert.notInclude(data, '\n', 'Second log should be compact printed');
+        done();
+      }
+    }, false);
+
+    log.info({ message: logMessage });
   });
 });
