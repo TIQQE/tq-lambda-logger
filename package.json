@@ -59,5 +59,9 @@
     ],
     "all": true,
     "check-coverage": false
-  }
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md"
+  ]
 }

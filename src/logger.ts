@@ -12,6 +12,10 @@ class Logger {
    * This governs which logs will be written. If log level is
    * INFO all logs with INFO and above will be written. So: INFO
    * WARN and ERROR.
+   *
+   * The logger will look for `process.env.LOG_LEVEL` and use that
+   * if it is set. If not, it will use the default of INFO.
+   * @default INFO
    */
   public logLevel: LogLevels = this.setInitialLogLevel();
 
@@ -19,21 +23,25 @@ class Logger {
    * The id that came from the service that called this lambda.
    * It is best practice to send this through a header called CorrelationId.
    * This allows tracking of "events" through multiple distributed services.
+   * @default undefined
    */
   public correlationId: string | undefined;
 
   /**
-   * If true (default is false), the JSON log will be printed in a compact format.
+   * If true, the JSON log will be printed in a compact format.
+   * @default false
    */
   public compactPrint: boolean = false;
 
   /**
    * Setup the meta data that will be added to all logs.
+   * Calling init with no/missing options will reset the
+   * logger options to their initial state.
    */
   public init(options: LogOptions) {
-    this.logLevel = options.logLevel || this.logLevel;
-    this.correlationId = options.correlationId || this.correlationId;
-    this.compactPrint = options.compactPrint ?? this.compactPrint;
+    this.logLevel = options.logLevel ?? LogLevels.INFO;
+    this.correlationId = options.correlationId ?? undefined;
+    this.compactPrint = options.compactPrint ?? false;
   }
 
   /**
