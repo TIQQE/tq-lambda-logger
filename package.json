@@ -1,6 +1,6 @@
 {
   "name": "@tiqqe/lambda-logger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Logger for AWS Lambda nodejs.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
