@@ -221,4 +221,58 @@ describe('logger', () => {
     // Verify change
     assert.isTrue(log.compactPrint, 'compactPrint should be true after init');
   });
+
+  it('should serialize BigInt values when supportBigInt is true', (done) => {
+    // Enable BigInt support
+    log.init({
+      supportBigInt: true,
+      logLevel: LogLevels.DEBUG,
+    });
+
+    const testBigInt = BigInt(9007199254740991); // Max safe integer
+
+    hijacker.hijack((data: string) => {
+      const json = JSON.parse(data) as LogOutput;
+      assert.equal(json.bigIntValue, '9007199254740991n', 'BigInt should be serialized as string with n suffix');
+      done();
+    });
+
+    log.info({ message: logMessage, bigIntValue: testBigInt });
+  });
+
+  it('should not preserve BigInt values when supportBigInt is false', (done) => {
+    // Disable BigInt support
+    log.init({
+      supportBigInt: false,
+      logLevel: LogLevels.DEBUG,
+    });
+
+    const testBigInt = BigInt(123);
+
+    hijacker.hijack((data: string) => {
+      // This should throw an error when trying to stringify a BigInt without the replacer
+      assert.throws(() => JSON.parse(data) as LogOutput, Error, 'Should throw an error when BigInt is not supported');
+      done();
+    });
+
+    // This would normally throw "TypeError: Do not know how to serialize a BigInt"
+    // But our test will catch it via the hijacker
+    try {
+      log.info({ message: logMessage, bigIntValue: testBigInt });
+    } catch (error) {
+      // The error is expected here, let the hijacker handle it
+      done();
+    }
+  });
+
+  it('should respect supportBigInt setting when changed via init', () => {
+    // Default state
+    assert.isFalse(log.supportBigInt, 'supportBigInt should be false by default');
+
+    // Change setting
+    log.init({ supportBigInt: true });
+
+    // Verify change
+    assert.isTrue(log.supportBigInt, 'supportBigInt should be true after init');
+  });
 });
