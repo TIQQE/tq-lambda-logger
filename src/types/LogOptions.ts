@@ -22,4 +22,10 @@ export interface LogOptions {
    * @default false
    */
   compactPrint?: boolean;
+
+  /**
+   * If true (default is false), BigInt values will be serialized as a string + "n". Example BigInt(123) -> "123n"
+   * @default false
+   */
+  supportBigInt?: boolean;
 }

@@ -3,6 +3,7 @@ import { LogInputError } from './types/LogInputError';
 import { LogLevels } from './types/logLevels';
 import { LogOptions } from './types/LogOptions';
 import { LogOutput } from './types/LogOutput';
+import { bigIntReplacer } from './bigIntReplacer';
 
 /**
  * Provides methods for writing logs to in different log-levels. Logs are written in JSON format to stdout using console.log().
@@ -34,6 +35,12 @@ class Logger {
   public compactPrint: boolean = false;
 
   /**
+   * If true, BigInt values will be serialized as a string + "n". Example BigInt(123) -> "123n"
+   * @default false
+   */
+  public supportBigInt: boolean = false;
+
+  /**
    * Setup the meta data that will be added to all logs.
    * Calling init with no/missing options will reset the
    * logger options to their initial state.
@@ -42,6 +49,7 @@ class Logger {
     this.logLevel = options.logLevel ?? LogLevels.INFO;
     this.correlationId = options.correlationId ?? undefined;
     this.compactPrint = options.compactPrint ?? false;
+    this.supportBigInt = options.supportBigInt ?? false;
   }
 
   /**
@@ -85,7 +93,14 @@ class Logger {
     }
     if (logLevel >= this.logLevel) {
       const log = this.createLogJson(logInput, logLevel);
-      logFunction(this.compactPrint ? JSON.stringify(log) : JSON.stringify(log, null, 2));
+      // Call the appropriate console logging function with the serialized log object
+      // When supportBigInt is true, bigIntReplacer is used to properly serialize BigInt values
+      // When compactPrint is true, the JSON is output without indentation, otherwise with 2-space indentation
+      logFunction(
+        this.compactPrint
+          ? JSON.stringify(log, this.supportBigInt ? bigIntReplacer : undefined)
+          : JSON.stringify(log, this.supportBigInt ? bigIntReplacer : undefined, 2)
+      );
     }
   }
 

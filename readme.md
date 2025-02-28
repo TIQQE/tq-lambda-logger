@@ -109,6 +109,25 @@ log.info('My message');
 // }
 ```
 
+## Serialize BigInt
+
+By default JSON.stringify will raise a `TypeError` if an object contains values of the type [BigInt](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt). By setting the `supportBigInt`option to `true` they will be serialized to a string + "n". Example `BigInt(123)` -> `"123n"`.
+
+```typescript
+// Enable support for BigInt
+log.init({ supportBigInt: true });
+
+log.info([message: "BigInt supported", bigIntValue: 123n});
+// Output:
+// {
+//   "timestamp": "2025-02-17T14:36:07.345Z",
+//   "logLevel": "INFO",
+//   "Message": "BigInt supported"
+//   "bigIntValue": "123n"
+// }
+
+
+
 ## Release process
 
 Bump the `version` in `package.json` according to [semver](https://semver.org/spec/v2.0.0.html). If we are making a non-breaking change, compared to the last version, the new `version` would go from `0.11.0` to `0.12.0`.
