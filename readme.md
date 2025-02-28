@@ -117,7 +117,7 @@ By default JSON.stringify will raise a `TypeError` if an object contains values 
 // Enable support for BigInt
 log.init({ supportBigInt: true });
 
-log.info([message: "BigInt supported", bigIntValue: 123n});
+log.info({message: "BigInt supported", bigIntValue: 123n});
 // Output:
 // {
 //   "timestamp": "2025-02-17T14:36:07.345Z",
