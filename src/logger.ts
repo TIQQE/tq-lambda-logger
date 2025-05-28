@@ -1,9 +1,9 @@
+import { bigIntReplacer } from './bigIntReplacer';
 import { LogInput } from './types/LogInput';
 import { LogInputError } from './types/LogInputError';
 import { LogLevels } from './types/logLevels';
 import { LogOptions } from './types/LogOptions';
 import { LogOutput } from './types/LogOutput';
-import { bigIntReplacer } from './bigIntReplacer';
 
 /**
  * Provides methods for writing logs to in different log-levels. Logs are written in JSON format to stdout using console.log().
@@ -46,7 +46,7 @@ class Logger {
    * logger options to their initial state.
    */
   public init(options: LogOptions) {
-    this.logLevel = options.logLevel ?? LogLevels.INFO;
+    this.logLevel = options.logLevel ?? this.logLevel;
     this.correlationId = options.correlationId ?? undefined;
     this.compactPrint = options.compactPrint ?? false;
     this.supportBigInt = options.supportBigInt ?? false;
@@ -182,4 +182,4 @@ class Logger {
 
 const log = new Logger();
 
-export { log, LogLevels, LogInput, LogOutput };
+export { log, LogInput, LogLevels, LogOutput };
