@@ -1,3 +1,8 @@
+# THIS REPO NEEDS TO BE REVIEWED BEFORE USED 
+# IT USES CHALK (AND MAYBE MORE) AND CAN BE AFFECTED BY
+[https://jdstaerk.substack.com/p/we-just-found-malicious-code-in-the](https://jdstaerk.substack.com/p/we-just-found-malicious-code-in-the)
+[npm debug and chalk packages compromised](https://www.aikido.dev/blog/npm-debug-and-chalk-packages-compromised)
+
 ![CI](https://github.com/TIQQE/tq-lambda-logger/workflows/CI/badge.svg)
 
 # A nodejs logger for AWS Lambda
