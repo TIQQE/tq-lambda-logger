@@ -41,6 +41,13 @@ class Logger {
   public supportBigInt: boolean = false;
 
   /**
+   * If true, write JSON directly to process.stdout instead of using console methods.
+   * This avoids Lambda TEXT mode's tab-delimited prefix, producing clean JSON.
+   * @default false
+   */
+  public useStdout: boolean = false;
+
+  /**
    * Setup the meta data that will be added to all logs.
    * Calling init with no/missing options will reset the
    * logger options to their initial state.
@@ -50,6 +57,7 @@ class Logger {
     this.correlationId = options.correlationId ?? undefined;
     this.compactPrint = options.compactPrint ?? false;
     this.supportBigInt = options.supportBigInt ?? false;
+    this.useStdout = options.useStdout ?? false;
   }
 
   /**
@@ -93,14 +101,14 @@ class Logger {
     }
     if (logLevel >= this.logLevel) {
       const log = this.createLogJson(logInput, logLevel);
-      // Call the appropriate console logging function with the serialized log object
-      // When supportBigInt is true, bigIntReplacer is used to properly serialize BigInt values
-      // When compactPrint is true, the JSON is output without indentation, otherwise with 2-space indentation
-      logFunction(
-        this.compactPrint
-          ? JSON.stringify(log, this.supportBigInt ? bigIntReplacer : undefined)
-          : JSON.stringify(log, this.supportBigInt ? bigIntReplacer : undefined, 2)
-      );
+      const json = this.compactPrint
+        ? JSON.stringify(log, this.supportBigInt ? bigIntReplacer : undefined)
+        : JSON.stringify(log, this.supportBigInt ? bigIntReplacer : undefined, 2);
+      if (this.useStdout) {
+        process.stdout.write(json + '\n');
+      } else {
+        logFunction(json);
+      }
     }
   }
 
