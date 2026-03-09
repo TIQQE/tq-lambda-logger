@@ -28,4 +28,13 @@ export interface LogOptions {
    * @default false
    */
   supportBigInt?: boolean;
+
+  /**
+   * If true (default is false), write JSON directly to process.stdout instead of
+   * using console methods. This avoids Lambda TEXT mode's tab-delimited prefix
+   * (TIMESTAMP\tREQUEST_ID\tLEVEL\t), producing clean JSON that log consumers
+   * and CloudWatch subscription filters can parse directly.
+   * @default false
+   */
+  useStdout?: boolean;
 }
